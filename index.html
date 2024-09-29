@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Women Safety - Email Alert</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #9f6fce, rgb(145, 228, 255));
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            width: 450px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        h2 {
+            font-size: 24px;
+            color: #5a4292;
+            margin-bottom: 20px;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #response-message {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #333;
+        }
+        #map {
+            margin-top: 15px;
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        footer {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #666;
+            position: absolute;
+            bottom: 20px;
+            text-align: center;
+            width: 100%;
+        }
+        .success-message {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #4CAF50; /* Green color */
+            font-weight: bold; /* Bold text */
+            border: 1px solid #4CAF50; /* Green border */
+            background-color: #e7f9e7; /* Light green background */
+            padding: 10px;
+            border-radius: 5px; /* Rounded corners */
+        }
+        .error-message {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #e74c3c; /* Red color */
+            font-weight: bold; /* Bold text */
+            border: 1px solid #e74c3c; /* Red border */
+            background-color: #f8d7da; /* Light red background */
+            padding: 10px;
+            border-radius: 5px; /* Rounded corners */
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+<body>
+    <div class="container">
+        <h2>Women Safety - Email Alert</h2>
+        <input id="recipient-email" type="email" placeholder="Enter recipient email address" required>
+        <button id="send-alert-btn" onclick="sendAlert()">Send Email Alert</button>
+        <div id="response-message"></div>
+        <div id="map"></div>
+    </div>
+    <footer>&copy; 2024 Women Safety Initiative. All rights reserved.</footer>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        let userLocation = "";
+
+        const map = L.map('map').setView([20.5937, 78.9629], 5); // Default map center in India
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    userLocation = `Latitude: ${lat}, Longitude: ${lon}`;
+                    map.setView([lat, lon], 15);
+                    L.marker([lat, lon]).addTo(map)
+                        .bindPopup("Your Location").openPopup();
+                }, () => {
+                    alert("Unable to retrieve your location.");
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        getUserLocation();
+
+        async function sendAlert() {
+            const recipientEmail = document.getElementById('recipient-email').value;
+            const responseMessage = document.getElementById('response-message');
+            responseMessage.className = ""; // Reset to default class
+
+            if (!recipientEmail || !userLocation) {
+                alert("Please fill out all fields and ensure location is loaded.");
+                return;
+            }
+
+            const sendAlertButton = document.getElementById('send-alert-btn');
+            sendAlertButton.disabled = true;
+            responseMessage.innerText = "Sending alert...";
+
+            try {
+                const response = await fetch('/send-alert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ recipientEmail, location: userLocation })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    responseMessage.innerText = "Failed to send alert: " + (errorData.error || "Unknown error");
+                    responseMessage.className = "error-message"; // Add error class
+                } else {
+                    const data = await response.json();
+                    responseMessage.innerText = "🎉 Email alert sent successfully! 🎉 Message ID: " + data.messageId;
+                    responseMessage.className = "success-message"; // Add success class
+                }
+            } catch (error) {
+                responseMessage.innerText = "Error: " + error.message;
+                responseMessage.className = "error-message"; // Add error class
+            } finally {
+                sendAlertButton.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
