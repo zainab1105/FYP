@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Women Safety - Email Alert</title>
+    <style>
+       @keyframes gradientAnimation {
+        0% {
+            background-position: top;
+        }
+        100% {
+            background-position: bottom;
+        }
+    }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #6337b6, #4fcffe); /* Starting gradient */
+            background-size: 100% 200%; /* Size adjusted for smooth animation */
+            animation: gradientAnimation 5s ease infinite alternate; /* Animation applied here */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            width: 450px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin-top: 10px;
+        }
+        h2 {
+            font-size: 24px;
+            color: #5a4292;
+            margin-bottom: 20px;
+        }
+        .email-container {
+            display: flex;
+            align-items: center;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        .edit-icon {
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #response-message {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #333;
+        }
+        #map {
+            margin-top: 15px;
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        footer {
+            margin-top: 35px;
+            font-size: 14px;
+            color: #666;
+            position: relative;
+            bottom: 20px;
+            text-align: center;
+            width: 100%;
+        }
+        .success-message {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #4CAF50;
+            font-weight: bold;
+            border: 1px solid #4CAF50;
+            background-color: #e7f9e7;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .error-message {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #e74c3c;
+            font-weight: bold;
+            border: 1px solid #e74c3c;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Women Safety - Email Alert</h2>
+        <div class="email-container">
+            <input id="recipient-email" type="email" value="example@example.com" disabled>
+            <i class="fas fa-pencil-alt edit-icon" onclick="enableEditing()"></i>
+        </div>
+        <button id="send-alert-btn" onclick="sendAlert()">Send Email Alert</button>
+        <div id="response-message"></div>
+        <div id="map"></div>
+    </div>
+    <footer>&copy; 2024 Women Safety Initiative by <span style="color: rgba(47, 79, 79, 0.855); font-family: Georgia, 'Times New Roman', Times, serif;">Zainab Khan</span>. All rights reserved.</footer>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        let userLocation = "";
+
+        const map = L.map('map').setView([20.5937, 78.9629], 5); // Default map center in India
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    userLocation = `Latitude: ${lat}, Longitude: ${lon}`;
+                    map.setView([lat, lon], 15);
+                    L.marker([lat, lon]).addTo(map)
+                        .bindPopup("Your Location").openPopup();
+                }, () => {
+                    alert("Unable to retrieve your location.");
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        getUserLocation();
+
+        function enableEditing() {
+            const emailInput = document.getElementById('recipient-email');
+            emailInput.disabled = false;
+            emailInput.focus(); // Set focus on the input
+        }
+
+        async function sendAlert() {
+            const recipientEmail = document.getElementById('recipient-email').value;
+            const responseMessage = document.getElementById('response-message');
+            responseMessage.className = ""; // Reset to default class
+
+            if (!recipientEmail || !userLocation) {
+                alert("Please ensure location is loaded.");
+                return;
+            }
+
+            const sendAlertButton = document.getElementById('send-alert-btn');
+            sendAlertButton.disabled = true;
+            responseMessage.innerText = "Sending alert...";
+
+            try {
+                const response = await fetch('/send-alert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ recipientEmail, location: userLocation })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    responseMessage.innerText = "Failed to send alert: " + (errorData.error || "Unknown error");
+                    responseMessage.className = "error-message"; // Add error class
+                } else {
+                    const data = await response.json();
+                    responseMessage.innerText = "Email alert sent successfully! Message ID: " + data.messageId;
+                    responseMessage.className = "success-message"; // Add success class
+                }
+            } catch (error) {
+                responseMessage.innerText = "Error: " + error.message;
+                responseMessage.className = "error-message"; // Add error class
+            } finally {
+                sendAlertButton.disabled = false;
+                document.getElementById('recipient-email').disabled = true; // Disable the email field again
+            }
+        }
+    </script>
+</body>
+</html>
