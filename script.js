@@ -24,46 +24,31 @@ function initMap() {
 }
 
 async function sendAlert() {
-    const recipientEmail = document.getElementById('recipient-email').value;
-    const responseMessage = document.getElementById('response-message');
+    const phoneNumber = document.getElementById('emergency-contact').value;
 
-    if (!recipientEmail || !userLocation) {
-        alert("Please ensure a valid email is entered and location is loaded.");
+    if (!phoneNumber || !userLocation) {
+        alert("Please enter a valid contact number and ensure location is loaded.");
         return;
     }
-
-    const sendAlertButton = document.getElementById('send-alert-btn');
-    sendAlertButton.disabled = true;
-    responseMessage.innerText = "Sending alert...";
 
     try {
         const response = await fetch('/send-alert', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ recipientEmail, location: userLocation })
+            body: JSON.stringify({ phoneNumber, location: userLocation })
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            responseMessage.innerText = "Failed to send alert: " + (errorData.error || "Unknown error");
+        const data = await response.json();
+        if (response.ok) {
+            alert("Emergency alert sent successfully!");
         } else {
-            const data = await response.json();
-            responseMessage.innerText = "Email alert sent successfully! Message ID: " + data.messageId;
+            alert("Failed to send alert: " + data.error);
         }
     } catch (error) {
-        responseMessage.innerText = "Error: " + error.message;
-    } finally {
-        sendAlertButton.disabled = false;
-        document.getElementById('recipient-email').value = ""; // Clear input
+        alert("Error: " + error.message);
     }
 }
 
-function handleSignIn(event) {
-    event.preventDefault();
-    // Implement sign-in logic here
-}
-
-function handleSignUp(event) {
-    event.preventDefault();
-    // Implement sign-up logic here
-}
+// Initialize the map when the page loads
+window.onload = initMap;
+    

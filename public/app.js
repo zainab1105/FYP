@@ -51,4 +51,3 @@ async function sendAlert() {
 
 // Initialize the map when the page loads
 window.onload = initMap;
-    
