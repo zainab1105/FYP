@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send Alert - Women Safety</title>
+    <title>Sign In - Women Safety</title>
     <style>
-        /* Add your styles here, similar to previous files */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: #f0f0f0;
+            background: linear-gradient(to bottom, #6337b6, #4fcffe); /* Starting gradient */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -18,19 +17,19 @@
         }
         .container {
             background: white;
-            padding: 20px;
+            padding: 100px;
             border-radius: 5px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         input {
             width: 100%;
-            padding: 10px;
+            padding: 17px;
             margin: 10px 0;
             border-radius: 5px;
             border: 1px solid #ccc;
         }
         button {
-            width: 100%;
+            width: 106%;
             padding: 10px;
             border: none;
             border-radius: 5px;
@@ -45,18 +44,22 @@
 </head>
 <body>
     <div class="container">
-        <h2>Send Alert</h2>
-        <input type="email" id="recipient-email" placeholder="Enter email">
-        <button onclick="sendAlert()">Send Alert</button>
+        <h1>Sign In</h1>
+        <input type="text" placeholder="Username" id="username" style="font-size: 20px;">
+        <input type="password" placeholder="Password" id="password" style="font-size: 20px;">
+        <a href="alert.html"><button onclick="signIn()" style="font-size: 20px;">Sign In</button></a>
         <div id="response-message"></div>
     </div>
     <script>
-        async function sendAlert() {
-            const recipientEmail = document.getElementById('recipient-email').value;
+        async function signIn() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-            // Add your send alert logic here
+            // Add your sign-in logic here
 
-            document.getElementById('response-message').innerText = "Alert sent!";
+            document.getElementById('response-message').innerText = "Signing in...";
+            // Redirect to alert page after successful sign-in
+            window.location.href = "index.html";
         }
     </script>
 </body>
