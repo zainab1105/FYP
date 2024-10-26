@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Women Safety - Email Alert</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Lobster&display=swap" rel="stylesheet">
     <style>
+        /* No changes to existing styles */
        @keyframes gradientAnimation {
         0% {
             background-position: top;
@@ -12,7 +17,7 @@
         100% {
             background-position: bottom;
         }
-    }
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -26,12 +31,11 @@
             justify-content: center;
             align-items: center;
         }
-
         .container {
             background: #fff;
             padding: 40px;
             border-radius: 10px;
-            width: 450px;
+            width: 512px;
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
             margin-top: 10px;
@@ -47,7 +51,7 @@
         }
         input {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             margin: 10px 0;
             border-radius: 5px;
             border: 1px solid #ccc;
@@ -57,9 +61,36 @@
             cursor: pointer;
             margin-left: 10px;
         }
+        .dropdown{
+            background-color: rgb(29, 136, 101) !important;
+            border-radius: 6px !important;
+        }
+        .dropdown:hover{
+            background-color: rgb(7, 88, 61) !important;
+        }
+        .btn-secondary{
+            --bs-btn-bg: rgb(29,136, 101) !important;
+            --bs-btn-hover-bg: rgb(7, 88, 61) !important;
+            --bs-btn-hover-border-color: rgb(7, 88, 61) !important;
+            --bs-btn-border-color: rgb(29, 136, 101) !important;
+        }
+        .btn{
+            --bs-btn-padding-y: -0.625rem !important;
+            --bs-btn-padding-x: 20px !important;
+        }
+        .btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active{
+            background-color: rgb(7, 88, 61) !important;
+            border-color: rgb(7, 88, 61) !important;
+        }
+        .dropdown-menu{
+            --bs-dropdown-min-width: 27rem !important;
+        }
+        .btn btn-secondary dropdown-toggle{
+            --bs-btn-padding-x: 30px !important;
+        }
         button {
             width: 100%;
-            padding: 12px;
+            padding: 8px;
             margin: 10px 0;
             border-radius: 5px;
             border: 1px solid #ccc;
@@ -75,6 +106,10 @@
             margin-top: 15px;
             font-size: 16px;
             color: #333;
+        }
+        #name{
+            font-family: "Arima", system-ui;
+            font-weight: 600;
         }
         #map {
             margin-top: 15px;
@@ -120,17 +155,30 @@
     <div class="container">
         <h2>Women Safety - Email Alert</h2>
         <div class="email-container">
-            <input id="recipient-email" type="email" value="example@example.com" disabled>
-            <i class="fas fa-pencil-alt edit-icon" onclick="enableEditing()"></i>
+            <input id="recipient-email" type="email">
+            <!-- <i class="fas fa-pencil-alt edit-icon" onclick="enableEditing()"></i> -->
         </div>
+        <!-- Save Emails Button -->
+        <button id="save-email-btn" onclick="saveEmail()">Save Email</button>
+        <!-- Dropdown for saved emails -->
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Check saved emails    
+            </button>
+            <ul id="email-list" class="dropdown-menu">
+              <!-- Saved emails will appear here -->
+            </ul>
+          </div>
         <button id="send-alert-btn" onclick="sendAlert()">Send Email Alert</button>
         <div id="response-message"></div>
         <div id="map"></div>
     </div>
-    <footer>&copy; 2024 Women Safety Initiative by <span style="color: rgba(47, 79, 79, 0.855); font-family: Georgia, 'Times New Roman', Times, serif;">Zainab Khan</span>. All rights reserved.</footer>
+    <footer>&copy; 2024 Women Safety Initiative by <span id="name" style="color: rgba(47, 79, 79, 0.855);">Zainab Khan</span>. All rights reserved.</footer>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
         let userLocation = "";
+        let savedEmails = []; // Array to hold saved emails
 
         const map = L.map('map').setView([20.5937, 78.9629], 5); // Default map center in India
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -162,44 +210,140 @@
             emailInput.focus(); // Set focus on the input
         }
 
-        async function sendAlert() {
-            const recipientEmail = document.getElementById('recipient-email').value;
-            const responseMessage = document.getElementById('response-message');
-            responseMessage.className = ""; // Reset to default class
+        function saveEmail() {
+            const emailInput = document.getElementById('recipient-email');
+            const emailList = document.getElementById('email-list');
+            const emailValue = emailInput.value.trim();
 
-            if (!recipientEmail || !userLocation) {
-                alert("Please ensure location is loaded.");
+            // Load saved emails from localStorage
+            let savedEmails = JSON.parse(localStorage.getItem('savedEmails')) || [];
+
+            // Check if the email is not empty and not already saved
+            if (emailValue !== "" && !savedEmails.includes(emailValue)) {
+                // Add new email to the savedEmails array
+                savedEmails.push(emailValue);
+                
+                // Create a new list item for the dropdown
+                const listItem = document.createElement('li');
+                listItem.classList.add('dropdown-item');
+                
+                // Create and append the email text
+                const emailText = document.createElement('span');
+                emailText.innerText = emailValue;
+                listItem.appendChild(emailText);
+
+                // Create and append the remove icon
+                const removeIcon = document.createElement('i');
+                removeIcon.classList.add('fas', 'fa-times');
+                removeIcon.style.cursor = 'pointer';
+                removeIcon.style.marginLeft = '150px';
+                removeIcon.onclick = () => removeEmail(emailValue, listItem);
+                listItem.appendChild(removeIcon);
+
+                // Add the new list item to the email list (dropdown)
+                emailList.appendChild(listItem);
+
+                // Clear the input field after saving
+                emailInput.value = ""; 
+
+                // Save the updated emails back to localStorage
+                localStorage.setItem('savedEmails', JSON.stringify(savedEmails));   
+                alert("Email saved!");
+            } else {
+                alert("Email is either empty or already saved.");
+            }
+        }
+
+        function removeEmail(email, listItem) {
+            // Remove the email from savedEmails array
+            savedEmails = savedEmails.filter(savedEmail => savedEmail !== email);
+            
+            // Remove the list item from the DOM
+            listItem.remove();
+            alert("Email removed!");
+        }
+
+        async function sendAlert() {
+            // Check if at least one email is saved
+            if (savedEmails.length === 0) {
+                document.getElementById('response-message').innerHTML = 
+                    '<p class="error-message">Please save at least one email before sending an alert.</p>';
                 return;
             }
 
-            const sendAlertButton = document.getElementById('send-alert-btn');
-            sendAlertButton.disabled = true;
-            responseMessage.innerText = "Sending alert...";
+            // Request location access
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const location = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                };
 
-            try {
-                const response = await fetch('/send-alert', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ recipientEmail, location: userLocation })
-                });
+                let allSuccess = true;
+                for (let email of savedEmails) {
+                    try {
+                        const response = await fetch('/send-alert', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, location })
+                        });
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    responseMessage.innerText = "Failed to send alert: " + (errorData.error || "Unknown error");
-                    responseMessage.className = "error-message"; // Add error class
-                } else {
-                    const data = await response.json();
-                    responseMessage.innerText = "Email alert sent successfully! Message ID: " + data.messageId;
-                    responseMessage.className = "success-message"; // Add success class
+                        if (!response.ok) {
+                            const errorData = await response.text(); // Read as text to see the error message
+                            throw new Error(`Failed to send email alert: ${errorData}`);
+                        }
+
+                        const data = await response.json();
+                        if (!data.success) {
+                            allSuccess = false;
+                            document.getElementById('response-message').innerHTML += 
+                                `<p class="error-message">Failed to send email alert to ${email}.</p>`;
+                        }
+                    } catch (error) {
+                        allSuccess = false;
+                        document.getElementById('response-message').innerHTML += 
+                            `<p class="error-message">Error sending email alert to ${email}: ${error.message}</p>`;
+                    }
                 }
-            } catch (error) {
-                responseMessage.innerText = "Error: " + error.message;
-                responseMessage.className = "error-message"; // Add error class
-            } finally {
-                sendAlertButton.disabled = false;
-                document.getElementById('recipient-email').disabled = true; // Disable the email field again
-            }
+
+                if (allSuccess) {
+                    document.getElementById('response-message').innerHTML = 
+                        '<p class="success-message">Email alerts sent successfully to all saved emails!</p>';
+                }
+            }, (error) => {
+                document.getElementById('response-message').innerHTML = 
+                    '<p class="error-message">Unable to retrieve your location. Please allow location access.</p>';
+            });
         }
+
+        // Call this function to load saved emails when the script runs
+        function loadSavedEmails() {
+            const savedEmails = JSON.parse(localStorage.getItem('savedEmails')) || [];
+            savedEmails.forEach(email => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('dropdown-item');
+                
+                const emailText = document.createElement('span');
+                emailText.innerText = email;
+
+                const removeIcon = document.createElement('i');
+                removeIcon.classList.add('fas', 'fa-times');
+                removeIcon.style.cursor = 'pointer';
+                removeIcon.onclick = () => removeEmail(email, listItem);
+
+                listItem.appendChild(emailText);
+                listItem.appendChild(removeIcon);
+                document.getElementById('email-list').appendChild(listItem);
+            });
+        }
+
+        // Call this function after sign-in
+        // Example: after successful login
+        function onSuccessfulLogin() {
+            // Load saved emails
+            loadSavedEmails();
+            // Other login success logic...
+        }
+
     </script>
 </body>
 </html>

@@ -1,32 +1,44 @@
 let userLocation = "";
+let savedEmails = []; // Array to hold saved emails
 
-function initMap() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(position => {
-            const { latitude, longitude } = position.coords;
-            userLocation = `https://www.google.com/maps?q=${latitude},${longitude}`;
+// ... Other existing functions remain unchanged
 
-            const map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: latitude, lng: longitude },
-                zoom: 14
-            });
+function saveEmail() {
+    const emailInput = document.getElementById('recipient-email');
+    const emailList = document.getElementById('email-list');
+    const emailValue = emailInput.value.trim();
 
-            new google.maps.Marker({
-                position: { lat: latitude, lng: longitude },
-                map: map
-            });
-        }, error => {
-            alert("Error getting location: " + error.message);
-        });
+    if (emailValue !== "" && !savedEmails.includes(emailValue)) {
+        savedEmails.push(emailValue);
+        
+        const listItem = document.createElement('li');
+        listItem.classList.add('dropdown-item');
+        
+        // Add email text
+        const emailText = document.createElement('span');
+        emailText.innerText = emailValue;
+
+        // Add Font Awesome cross icon for removal
+        const removeIcon = document.createElement('i');
+        removeIcon.classList.add('fas', 'fa-times');
+        removeIcon.style.cursor = 'pointer';
+        removeIcon.style.marginLeft = '150px';
+        removeIcon.onclick = () => removeEmail(emailValue, listItem);
+
+        listItem.appendChild(emailText);
+        listItem.appendChild(removeIcon);
+        emailList.appendChild(listItem);
+
+        emailInput.value = ""; // Clear input field after saving
     } else {
-        alert("Geolocation is not supported by this browser.");
+        alert("Please enter a valid email address or it is already saved.");
     }
 }
 
 async function sendAlert() {
-    const phoneNumber = document.getElementById('emergency-contact').value;
+    const email = savedEmails.length > 0 ? savedEmails[savedEmails.length - 1] : ""; // Get the last saved email
 
-    if (!phoneNumber || !userLocation) {
+    if (!email || !userLocation) {
         alert("Please enter a valid contact number and ensure location is loaded.");
         return;
     }
@@ -35,20 +47,16 @@ async function sendAlert() {
         const response = await fetch('/send-alert', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phoneNumber, location: userLocation })
+            body: JSON.stringify({ email, location: userLocation }) // Send email and location
         });
 
         const data = await response.json();
         if (response.ok) {
             alert("Emergency alert sent successfully!");
         } else {
-            alert("Failed to send alert: " + data.error);
+            alert("Failed to send alert: " + data.message);
         }
     } catch (error) {
         alert("Error: " + error.message);
     }
 }
-
-// Initialize the map when the page loads
-window.onload = initMap;
-    

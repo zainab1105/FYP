@@ -44,23 +44,27 @@
 </head>
 <body>
     <div class="container">
-        <h1>Sign In</h1>
-        <input type="text" placeholder="Username" id="username" style="font-size: 20px;">
-        <input type="password" placeholder="Password" id="password" style="font-size: 20px;">
-        <button onclick="signIn()" style="font-size: 20px;">Sign In</button>
+        <h1 style="margin-left: -20px; margin-top: -10px;">Remove account</h1>
+        <button id="remove-account" onclick="removeAccount()" style="margin-top: 20px; margin-left: -20px; font-size: 18px; padding: 10px;">Remove My Account</button>
+        <p style="margin-left: -20px; margin-top: 3px;"> <span style="color: red; font-size: 23px;">*</span> Please enter your username to delete your existing account <span style="color: red; font-size: 23px;">*</span></p>
         <div id="response-message"></div>
     </div>
     <script>
-        async function signIn() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+        function removeAccount() {
+            const username = document.getElementById('username').value; // Get the current username
 
-            // Add your sign-in logic here
-
-            document.getElementById('response-message').innerText = "Signing in...";
-            // Redirect to alert page after successful sign-in
-            window.location.href = "alert.html";
+            if (localStorage.getItem(username)) {
+                // Remove user's data
+                localStorage.removeItem(username);
+                localStorage.removeItem('savedEmails'); // Optionally remove saved emails
+                alert("Your account has been removed and all associated data has been deleted.");
+                // Optionally, you can redirect or refresh the page
+                window.location.reload();
+            } else {
+                alert("No account found for this username.");
+            }
         }
+
     </script>
 </body>
 </html>

@@ -1,20 +1,51 @@
 const express = require('express');
-const app = express();
-const path = require('path');
+const nodemailer = require('nodemailer');
+const bodyParser = require('body-parser');
+const cors = require('cors'); // Import cors
 
-app.use(express.json());
-app.use(express.static('public')); // Ensure to serve static files
+const app = express(); // Initialize app here
+const PORT = process.env.PORT || 3000;
 
-app.get('/sign-in', (req, res) => {
-    res.sendFile(path.join(__dirname, 'sign-in.html'));
+// Middleware
+app.use(cors()); // Use cors middleware here
+app.use(bodyParser.json());
+app.use(express.static('public')); // Serve your HTML files
+
+// Set up Nodemailer transporter
+const transporter = nodemailer.createTransport({
+    service: 'Gmail', // or another service
+    auth: {
+        user: 'khanzainab6002@gmail.com',  // Your email address
+        pass: 'jcis jepj iwoh prat'  // Replace with the app password
+    }
 });
 
-app.get('/alert', (req, res) => {
-    res.sendFile(path.join(__dirname, 'alert.html'));
+// Endpoint to handle email sending
+app.post('/send-alert', (req, res) => {
+    const { email, location } = req.body;
+
+    if (!email || !location) { // Validate input
+        return res.status(400).json({ success: false, message: 'Email and location are required.' });
+    }
+
+    const mailOptions = {
+        from: 'your_email@gmail.com',
+        to: email,
+        subject: 'Emergency Alert',
+        text: `This is an emergency alert! Your location is: ${location}`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log('Error:', error);
+            return res.status(500).json({ success: false, message: error.toString() });
+        }
+        console.log('Email sent:', info.response);
+        return res.status(200).json({ success: true, message: 'Email sent successfully!' });
+    });
 });
 
-// Add other necessary routes
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
