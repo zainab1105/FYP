@@ -32,7 +32,7 @@ app.post('/send-alert', (req, res) => {
         from: 'your_email@gmail.com',
         to: email,
         subject: 'Emergency Alert',
-        text: `This is an emergency alert! Your location is: ${location}`
+        text: 'This is an emergency alert! Your location is: ${location}'
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -47,5 +47,5 @@ app.post('/send-alert', (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log('Server is running on http://localhost:${PORT}');
 });

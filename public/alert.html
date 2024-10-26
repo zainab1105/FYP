@@ -190,7 +190,7 @@
                 navigator.geolocation.getCurrentPosition(position => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
-                    userLocation = `Latitude: ${lat}, Longitude: ${lon}`;
+                    userLocation = Latitude: ${lat}, Longitude: ${lon};
                     map.setView([lat, lon], 15);
                     L.marker([lat, lon]).addTo(map)
                         .bindPopup("Your Location").openPopup();
@@ -215,39 +215,29 @@
             const emailList = document.getElementById('email-list');
             const emailValue = emailInput.value.trim();
 
-            // Load saved emails from localStorage
-            let savedEmails = JSON.parse(localStorage.getItem('savedEmails')) || [];
-
-            // Check if the email is not empty and not already saved
             if (emailValue !== "" && !savedEmails.includes(emailValue)) {
-                // Add new email to the savedEmails array
                 savedEmails.push(emailValue);
                 
-                // Create a new list item for the dropdown
                 const listItem = document.createElement('li');
                 listItem.classList.add('dropdown-item');
                 
-                // Create and append the email text
+                // Add email text
                 const emailText = document.createElement('span');
                 emailText.innerText = emailValue;
-                listItem.appendChild(emailText);
 
-                // Create and append the remove icon
+                // Add Font Awesome cross icon
                 const removeIcon = document.createElement('i');
                 removeIcon.classList.add('fas', 'fa-times');
                 removeIcon.style.cursor = 'pointer';
                 removeIcon.style.marginLeft = '150px';
+                removeIcon.style.alignItems = 'left';
                 removeIcon.onclick = () => removeEmail(emailValue, listItem);
-                listItem.appendChild(removeIcon);
 
-                // Add the new list item to the email list (dropdown)
+                listItem.appendChild(emailText);
+                listItem.appendChild(removeIcon);
                 emailList.appendChild(listItem);
 
-                // Clear the input field after saving
-                emailInput.value = ""; 
-
-                // Save the updated emails back to localStorage
-                localStorage.setItem('savedEmails', JSON.stringify(savedEmails));   
+                emailInput.value = ""; // Clear input after saving
                 alert("Email saved!");
             } else {
                 alert("Email is either empty or already saved.");
@@ -264,87 +254,47 @@
         }
 
         async function sendAlert() {
-            // Check if at least one email is saved
-            if (savedEmails.length === 0) {
+            const location = userLocation;
+
+            if (savedEmails.length === 0 || !location) {
                 document.getElementById('response-message').innerHTML = 
-                    '<p class="error-message">Please save at least one email before sending an alert.</p>';
+                    '<p class="error-message">Please save at least one email and allow location access.</p>';
                 return;
             }
 
-            // Request location access
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const location = {
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                };
+            let allSuccess = true;
+            for (let email of savedEmails) {
+                try {
+                    const response = await fetch('/send-alert', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, location })
+                    });
 
-                let allSuccess = true;
-                for (let email of savedEmails) {
-                    try {
-                        const response = await fetch('/send-alert', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email, location })
-                        });
+                    if (!response.ok) {
+                        const errorData = await response.text(); // Read as text to see the error message
+                        throw new Error(Failed to send email alert: ${errorData});
+                    }
 
-                        if (!response.ok) {
-                            const errorData = await response.text(); // Read as text to see the error message
-                            throw new Error(`Failed to send email alert: ${errorData}`);
-                        }
-
-                        const data = await response.json();
-                        if (!data.success) {
-                            allSuccess = false;
-                            document.getElementById('response-message').innerHTML += 
-                                `<p class="error-message">Failed to send email alert to ${email}.</p>`;
-                        }
-                    } catch (error) {
+                    const data = await response.json();
+                    if (!data.success) {
                         allSuccess = false;
                         document.getElementById('response-message').innerHTML += 
-                            `<p class="error-message">Error sending email alert to ${email}: ${error.message}</p>`;
+                            <p class="error-message">Failed to send email alert to ${email}.</p>;
                     }
+                } catch (error) {
+                    allSuccess = false;
+                    document.getElementById('response-message').innerHTML += 
+                        <p class="error-message">Error sending email alert to ${email}: ${error.message}</p>;
                 }
+            }
 
-                if (allSuccess) {
-                    document.getElementById('response-message').innerHTML = 
-                        '<p class="success-message">Email alerts sent successfully to all saved emails!</p>';
-                }
-            }, (error) => {
+            if (allSuccess) {
                 document.getElementById('response-message').innerHTML = 
-                    '<p class="error-message">Unable to retrieve your location. Please allow location access.</p>';
-            });
-        }
-
-        // Call this function to load saved emails when the script runs
-        function loadSavedEmails() {
-            const savedEmails = JSON.parse(localStorage.getItem('savedEmails')) || [];
-            savedEmails.forEach(email => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('dropdown-item');
-                
-                const emailText = document.createElement('span');
-                emailText.innerText = email;
-
-                const removeIcon = document.createElement('i');
-                removeIcon.classList.add('fas', 'fa-times');
-                removeIcon.style.cursor = 'pointer';
-                removeIcon.onclick = () => removeEmail(email, listItem);
-
-                listItem.appendChild(emailText);
-                listItem.appendChild(removeIcon);
-                document.getElementById('email-list').appendChild(listItem);
-            });
-        }
-
-        // Call this function after sign-in
-        // Example: after successful login
-        function onSuccessfulLogin() {
-            // Load saved emails
-            loadSavedEmails();
-            // Other login success logic...
+                    '<p class="success-message">Email alerts sent successfully to all saved emails!</p>';
+            }
         }
 
     </script>
 </body>
 </html>
-

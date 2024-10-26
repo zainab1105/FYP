@@ -44,127 +44,24 @@
 </head>
 <body>
     <div class="container">
-        <h1 style="margin-left: -20px; margin-top: -10px;">Sign In</h1>
+        <h1 style="margin-left: -20px; margin-top: -10px;">Sign In / Log in</h1>
         <input type="text" placeholder="Username" id="username" style="font-size: 19px; margin-left: -20px; margin-bottom: 20px;">
         <input type="password" placeholder="Password" id="password" style="font-size: 19px; margin-left: -20px; margin-bottom: 25px;">
         <button onclick="signIn()" style="font-size: 20px; margin-left: -20px;">Sign In</button>
-        <button id="remove-account" onclick="removeAccount()" style="margin-top: 20px; margin-left: -20px; font-size: 18px; padding: 10px;">Remove My Account</button>
-        <p style="margin-left: -20px; margin-top: 3px;"> <span style="color: red; font-size: 23px;">*</span> Please enter your username to delete your existing account <span style="color: red; font-size: 23px;">*</span></p>
+        <a href="rm-acc.html"><p style="margin-left: -20px;">Delete my account</p></a>
         <div id="response-message"></div>
     </div>
     <script>
         async function signIn() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-            // Check if username and password are provided
-            if (!username || !password) {
-                document.getElementById('response-message').innerText = "Please enter both username and password.";
-                return;
-            }
+            // Add your sign-in logic here
 
-            // Check if the user already exists
-            if (localStorage.getItem(username)) {
-                // Existing user - log them in
-                const storedPassword = localStorage.getItem(username);
-                if (storedPassword === password) {
-                    document.getElementById('response-message').innerText = "Signing in...";
-                    window.location.href = "alert.html"; // Redirect to alert.html
-                } else {
-                    document.getElementById('response-message').innerText = "Incorrect password!";
-                }
-            } else {
-                // New user - check for unique username
-                const allUsernames = Object.keys(localStorage);
-                if (allUsernames.includes(username)) {
-                    document.getElementById('response-message').innerText = "Username already taken!";
-                } else {
-                    // Save the username and password
-                    localStorage.setItem(username, password);
-                    document.getElementById('response-message').innerText = "Sign-up successful! Redirecting...";
-                    setTimeout(() => {
-                        window.location.href = "alert.html"; // Redirect after sign-up
-                    }, 2000);
-                }
-            }
+            document.getElementById('response-message').innerText = "Signing in...";
+            // Redirect to alert page after successful sign-in
+            window.location.href = "alert.html";
         }
-
-
-        function loadSavedEmails(username) {
-            const emailList = document.getElementById('email-list'); // Assuming this is your dropdown
-            emailList.innerHTML = ""; // Clear existing emails
-
-            // Load saved emails for the user
-            let savedEmails = JSON.parse(localStorage.getItem('savedEmails')) || [];
-
-            // Display each saved email in the dropdown
-            savedEmails.forEach(email => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('dropdown-item');
-                
-                // Add email text
-                const emailText = document.createElement('span');
-                emailText.innerText = email;
-
-                // Add Font Awesome cross icon
-                const removeIcon = document.createElement('i');
-                removeIcon.classList.add('fas', 'fa-times');
-                removeIcon.style.cursor = 'pointer';
-                removeIcon.style.marginLeft = '150px';
-                removeIcon.style.alignItems = 'left';
-                removeIcon.onclick = () => removeEmail(email, listItem); // Assuming you have a function to remove emails
-
-                listItem.appendChild(emailText);
-                listItem.appendChild(removeIcon);
-                emailList.appendChild(listItem);
-            });
-        }
-        
-        function loadSavedEmails(username) {
-            const emailList = document.getElementById('email-list'); // Assuming this is your dropdown
-            emailList.innerHTML = ""; // Clear existing emails
-
-            // Load saved emails for the user
-            let savedEmails = JSON.parse(localStorage.getItem('savedEmails')) || [];
-
-            // Display each saved email in the dropdown
-            savedEmails.forEach(email => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('dropdown-item');
-                
-                // Add email text
-                const emailText = document.createElement('span');
-                emailText.innerText = email;
-
-                // Add Font Awesome cross icon
-                const removeIcon = document.createElement('i');
-                removeIcon.classList.add('fas', 'fa-times');
-                removeIcon.style.cursor = 'pointer';
-                removeIcon.style.marginLeft = '150px';
-                removeIcon.style.alignItems = 'left';
-                removeIcon.onclick = () => removeEmail(email, listItem); // Assuming you have a function to remove emails
-
-                listItem.appendChild(emailText);
-                listItem.appendChild(removeIcon);
-                emailList.appendChild(listItem);
-            });
-        }
-
-        function removeAccount() {
-            const username = document.getElementById('username').value; // Get the current username
-
-            if (localStorage.getItem(username)) {
-                // Remove user's data
-                localStorage.removeItem(username);
-                localStorage.removeItem('savedEmails'); // Optionally remove saved emails
-                alert("Your account has been removed and all associated data has been deleted.");
-                // Optionally, you can redirect or refresh the page
-                window.location.reload();
-            } else {
-                alert("No account found for this username.");
-            }
-        }
-
     </script>
 </body>
 </html>
