@@ -36,10 +36,11 @@
             background: #fff;
             padding: 40px;
             border-radius: 10px;
-            width: 512px;
+            width: 600px;
+            height: 750px;
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
-            margin-top: 10px;
+            margin-top: 20px;
         }
         h2 {
             font-size: 24px;
@@ -57,10 +58,6 @@
             border-radius: 5px;
             border: 1px solid #ccc;
             font-size: 16px;
-        }
-        .edit-icon {
-            cursor: pointer;
-            margin-left: 10px;
         }
         .dropdown{
             background-color: rgb(29, 136, 101) !important;
@@ -84,7 +81,7 @@
             border-color: rgb(7, 88, 61) !important;
         }
         .dropdown-menu{
-            --bs-dropdown-min-width: 27rem !important;
+            --bs-dropdown-min-width: 32rem !important;
         }
         .btn btn-secondary dropdown-toggle{
             --bs-btn-padding-x: 30px !important;
@@ -115,7 +112,7 @@
         #map {
             margin-top: 15px;
             width: 100%;
-            height: 300px;
+            height: 280px;
             border: 1px solid #ccc;
             border-radius: 10px;
         }
@@ -171,7 +168,8 @@
             </ul>
           </div>
         <button id="send-alert-btn" onclick="sendAlert()">Send Email Alert</button></a>
-        <a href="direct-alert.html"><button id="send-alert-btn" onclick="">Save info</button>
+        <p style="text-align: left;"><span style="color: red;">*</span> Click here to go to the alert page, where one tap will notify all your saved emails instantly. <span style="color: red;">*</span></p>
+        <a href="direct-alert.html"><button id="send-alert-btn" onclick="" style="margin-top: -20px;">Save info</button></a>
         <div id="response-message"></div>
         <div id="map"></div>
     </div>
