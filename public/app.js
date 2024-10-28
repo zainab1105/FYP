@@ -4,7 +4,7 @@ function initMap() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(position => {
             const { latitude, longitude } = position.coords;
-            userLocation = https://www.google.com/maps?q=${latitude},${longitude};
+            userLocation = `https://www.google.com/maps?q=${latitude},${longitude}`; // Use backticks for template literals
 
             const map = new google.maps.Map(document.getElementById('map'), {
                 center: { lat: latitude, lng: longitude },
