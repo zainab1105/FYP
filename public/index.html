@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="WS1-logo.ico" type="image/x-icon">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <title>Sign In - Women Safety</title>
     <style>
         body {
@@ -41,6 +42,21 @@
         button:hover {
             background-color: #218838;
         }
+        .g-signin2 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .g-logo {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+        }
+        .g-btn-text {
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -50,10 +66,32 @@
         <input type="password" placeholder="Password" id="password" style="font-size: 19px; margin-left: -20px; margin-bottom: 25px;">
         <button onclick="signIn()" style="font-size: 20px; margin-left: -20px;">Sign In</button>
         <a href="rm-acc.html"><p style="margin-left: -20px;">Delete my account</p></a>
+        <!-- Google Sign-In Button -->
+        <div id="google-signin-btn" class="g-signin2" onclick="googleSignIn()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" class="g-logo" alt="Google Logo">
+            <span class="g-btn-text">Sign in with Google</span>
+        </div>
         <div id="response-message"></div>
+        <div id="error-message" style="color: red; margin-top: 10px;"></div> <!-- Error message area -->
     </div>
     <script>
+        function validateForm() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorMessage = document.getElementById('error-message');
+
+            if (!username || !password) {
+                errorMessage.textContent = "Both username and password are required.";
+                return false; // Prevent form submission
+            }
+
+            errorMessage.textContent = ""; // Clear error message if both fields are filled
+            return true; // Allow form submission
+        }
+
         async function signIn() {
+            if (!validateForm()) return; // Validate form before proceeding
+
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
@@ -63,6 +101,34 @@
             // Redirect to alert page after successful sign-in
             window.location.href = "alert.html";
         }
+
+        function handleCredentialResponse(response) {
+            console.log("Encoded JWT ID token: " + response.credential);
+            fetch("/google-signin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: response.credential })
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    alert("Signed in with Google!");
+                    window.location.href = "alert.html";
+                } else {
+                    alert("Google sign-in failed.");
+                }
+            });
+        }
+
+        window.onload = function() {
+            google.accounts.id.initialize({
+                client_id: "100219468018-ohnsjn7me4r86optric85cnmulo8aih0.apps.googleusercontent.com",
+                callback: handleCredentialResponse
+            });
+
+            google.accounts.id.renderButton(
+                document.getElementById("google-signin-btn"),
+                { theme: "outline", size: "large" } // Customize button style
+            );
+        };
     </script>
 </body>
 </html>

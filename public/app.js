@@ -2,14 +2,15 @@ let userLocation = "";
 
 function initMap() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(position => {
-            const { latitude, longitude } = position.coords;
-            userLocation = `https://www.google.com/maps?q=${latitude},${longitude}`; // Use backticks for template literals
-
-            const map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: latitude, lng: longitude },
-                zoom: 14
-            });
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const location = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
+              alert(`This is an emergency alert! Your location is: ${location}`);
+            },
+            (error) => {
+              console.error('Error retrieving location:', error);
+            }
+          );          
 
             new google.maps.Marker({
                 position: { lat: latitude, lng: longitude },
