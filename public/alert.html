@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Lobster&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Lobster&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <style>
         /* No changes to existing styles */
        @keyframes gradientAnimation {
@@ -24,7 +24,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #6337b6, #4fcffe); /* Starting gradient */
+            background: linear-gradient(to bottom, #2c3e50, #34495e); 
             background-size: 100% 200%; /* Size adjusted for smooth animation */
             animation: gradientAnimation 5s ease infinite alternate; /* Animation applied here */
             height: 100vh;
@@ -37,11 +37,10 @@
             background: #fff;
             padding: 40px;
             border-radius: 10px;
-            width: 600px;
-            height: 750px;
+            width: 512px;
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         h2 {
             font-size: 24px;
@@ -59,6 +58,10 @@
             border-radius: 5px;
             border: 1px solid #ccc;
             font-size: 16px;
+        }
+        .edit-icon {
+            cursor: pointer;
+            margin-left: 10px;
         }
         .dropdown{
             background-color: rgb(29, 136, 101) !important;
@@ -82,7 +85,7 @@
             border-color: rgb(7, 88, 61) !important;
         }
         .dropdown-menu{
-            --bs-dropdown-min-width: 32rem !important;
+            --bs-dropdown-min-width: 27rem !important;
         }
         .btn btn-secondary dropdown-toggle{
             --bs-btn-padding-x: 30px !important;
@@ -113,14 +116,14 @@
         #map {
             margin-top: 15px;
             width: 100%;
-            height: 280px;
+            height: 300px;
             border: 1px solid #ccc;
             border-radius: 10px;
         }
         footer {
             margin-top: 35px;
             font-size: 14px;
-            color: #666;
+            color: #aaa8a8;
             position: relative;
             bottom: 20px;
             text-align: center;
@@ -168,17 +171,15 @@
               <!-- Saved emails will appear here -->
             </ul>
           </div>
-        <button id="send-alert-btn" onclick="sendAlert()">Send Email Alert</button></a>
-        <p style="text-align: left;"><span style="color: red;">*</span> Click here to go to the alert page, where one tap will notify all your saved emails instantly. <span style="color: red;">*</span></p>
-        <a href="direct-alert.html"><button id="send-alert-btn" onclick="" style="margin-top: -20px;">Save info</button></a>
+        <button id="send-alert-btn" onclick="sendAlert()">Send Email Alert</button>
         <div id="response-message"></div>
         <div id="map"></div>
     </div>
-    <footer>&copy; 2024 Women Safety Initiative by <span id="name" style="color: rgba(47, 79, 79, 0.855);">Zainab Khan</span>. All rights reserved.</footer>
+    <footer>&copy; 2024 Women Safety Initiative by <span id="name" style="color: rgba(102, 159, 159, 0.855);">Zainab Khan</span>. All rights reserved.</footer>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
-        let userLocation = ""; // Initial value corrected
+        let userLocation = "";
         let savedEmails = []; // Array to hold saved emails
 
         const map = L.map('map').setView([20.5937, 78.9629], 5); // Default map center in India
@@ -191,7 +192,7 @@
                 navigator.geolocation.getCurrentPosition(position => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
-                    userLocation = `Latitude: ${lat}, Longitude: ${lon}`; // Corrected typo
+                    userLocation = `Latitude: ${lat}, Longitude: ${lon}`;
                     map.setView([lat, lon], 15);
                     L.marker([lat, lon]).addTo(map)
                         .bindPopup("Your Location").openPopup();
@@ -202,8 +203,11 @@
                 alert("Geolocation is not supported by this browser.");
             }
         }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            getUserLocation();
+        });
 
-        getUserLocation();
 
         function enableEditing() {
             const emailInput = document.getElementById('recipient-email');
@@ -274,19 +278,19 @@
 
                     if (!response.ok) {
                         const errorData = await response.text(); // Read as text to see the error message
-                        throw new Error(`Failed to send email alert: ${errorData}`); // Corrected
+                        throw new Error(`Failed to send email alert: ${errorData}`);
                     }
 
                     const data = await response.json();
                     if (!data.success) {
                         allSuccess = false;
                         document.getElementById('response-message').innerHTML += 
-                            `<p class="error-message">Failed to send email alert to ${email}.</p>`; // Corrected
+                            `<p class="error-message">Failed to send email alert to ${email}.</p>`;
                     }
                 } catch (error) {
                     allSuccess = false;
                     document.getElementById('response-message').innerHTML += 
-                        `<p class="error-message">Error sending email alert to ${email}: ${error.message}</p>`; // Corrected
+                        `<p class="error-message">Error sending email alert to ${email}: ${error.message}</p>`;
                 }
             }
 
@@ -295,7 +299,6 @@
                     '<p class="success-message">Email alerts sent successfully to all saved emails!</p>';
             }
         }
-
     </script>
 </body>
 </html>

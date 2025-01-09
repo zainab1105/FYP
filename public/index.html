@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="WS1-logo.ico" type="image/x-icon">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <title>Sign In - Women Safety</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #6337b6, #4fcffe); /* Starting gradient */
+            background: linear-gradient(to bottom, #b9dcff, #c6dff7); 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -20,115 +19,140 @@
         .container {
             background: white;
             padding: 65px;
+            border: 2px solid darkblue;
             border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(11, 9, 100, 0.1);
+            text-align: center;
         }
         input {
-            width: 100%;
+            width: 92%;
             padding: 17px;
             margin: 10px 0;
             border-radius: 5px;
             border: 1px solid #ccc;
+            font-size: 15px;
         }
         button {
-            width: 106%;
+            width: 100%;
             padding: 10px;
             border: none;
             border-radius: 5px;
             background-color: #28a745;
             color: white;
             cursor: pointer;
+            margin-top: 15px;
         }
-        button:hover {
-            background-color: #218838;
+        #response-message {
+            margin-top: 10px;
+            color: #555;
         }
-        .g-signin2 {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            margin-top: 20px;
+        #delete{
+            background-color: darkblue;
+            padding: 10px;
+            font-size: 15px;
         }
-        .g-logo {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
+        #delete:hover{
+            background-color: white !important;
+            color: darkblue !important;
+            border: 2px solid darkblue !important;
+            padding: 8.4px !important;
         }
-        .g-btn-text {
-            font-size: 16px;
+        #sign-in-btn{
+            color: darkblue;
+            border: 2px solid darkblue;
+            background-color: white;
+            font-size: 15px;
+        }
+        #sign-in-btn:hover{
+            background-color: darkblue;
+            color: aliceblue;
+        }
+        h3{
+            position: absolute;
+            top: 468px;
+            left: 48%;
+            border: 2px solid white;
+            background-color: white;
+            padding: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 style="margin-left: -20px; margin-top: -10px;">Sign In / Log in</h1>
-        <input type="text" placeholder="Username" id="username" style="font-size: 19px; margin-left: -20px; margin-bottom: 20px;">
-        <input type="password" placeholder="Password" id="password" style="font-size: 19px; margin-left: -20px; margin-bottom: 25px;">
-        <button onclick="signIn()" style="font-size: 20px; margin-left: -20px;">Sign In</button>
-        <a href="rm-acc.html"><p style="margin-left: -20px;">Delete my account</p></a>
-        <!-- Google Sign-In Button -->
-        <div id="google-signin-btn" class="g-signin2" onclick="googleSignIn()">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" class="g-logo" alt="Google Logo">
-            <span class="g-btn-text">Sign in with Google</span>
-        </div>
+        <h1>Sign In</h1>
+        <input type="text" placeholder="Username" id="username">
+        <input type="password" placeholder="Password" id="password">
+        <button id="sign-in-btn" onclick="signIn()">Sign In</button>
         <div id="response-message"></div>
-        <div id="error-message" style="color: red; margin-top: 10px;"></div> <!-- Error message area -->
+
+        <a href="rm-acc.html"><button id="delete">Want to delete your account?</button></a>
+
+        <hr style="margin: 30px 0;">
+        <h3>or</h3>
+
+        <!-- Google Sign-In -->
+        <div id="g_id_onload"
+            data-client_id="998791790071-fokl9jqimkm72imood2og6rvcbuqt5cr.apps.googleusercontent.com" 
+            data-context="signin"
+            data-ux_mode="popup"
+            data-callback="handleCredentialResponse"
+            data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+            data-type="standard"
+            data-shape="rectangular"
+            data-theme="outline"
+            data-text="signin_with"
+            data-size="large"
+            data-logo_alignment="left">
+        </div>
     </div>
+
     <script>
-        function validateForm() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorMessage = document.getElementById('error-message');
-
-            if (!username || !password) {
-                errorMessage.textContent = "Both username and password are required.";
-                return false; // Prevent form submission
-            }
-
-            errorMessage.textContent = ""; // Clear error message if both fields are filled
-            return true; // Allow form submission
-        }
-
+        // Simulated manual sign-in
         async function signIn() {
-            if (!validateForm()) return; // Validate form before proceeding
-
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Add your sign-in logic here
+            if (!username || !password) {
+                document.getElementById('response-message').innerText = "Please enter username and password.";
+                return;
+            }
 
             document.getElementById('response-message').innerText = "Signing in...";
-            // Redirect to alert page after successful sign-in
-            window.location.href = "alert.html";
+
+            // Simulated successful sign-in
+            setTimeout(() => {
+                window.location.href = "alert.html"; // Redirect to alert page
+            }, 1000);
         }
 
+        // Google Sign-In Callback
         function handleCredentialResponse(response) {
             console.log("Encoded JWT ID token: " + response.credential);
-            fetch("/google-signin", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token: response.credential })
-            }).then(res => res.json()).then(data => {
-                if (data.success) {
-                    alert("Signed in with Google!");
-                    window.location.href = "alert.html";
-                } else {
-                    alert("Google sign-in failed.");
-                }
-            });
+
+            // Decode the JWT token
+            const userInfo = parseJwt(response.credential);
+            console.log("User Info:", userInfo);
+
+            // Show a welcome message
+            document.getElementById('response-message').innerText = `Welcome, ${userInfo.name || "User"}!`;
+
+            // Optional: Redirect or process further
+            setTimeout(() => {
+                window.location.href = "alert.html"; // Redirect to alert page
+            }, 1000);
         }
 
-        window.onload = function() {
-            google.accounts.id.initialize({
-                client_id: "100219468018-ohnsjn7me4r86optric85cnmulo8aih0.apps.googleusercontent.com",
-                callback: handleCredentialResponse
-            });
-
-            google.accounts.id.renderButton(
-                document.getElementById("google-signin-btn"),
-                { theme: "outline", size: "large" } // Customize button style
-            );
-        };
+        // Helper function to decode JWT
+        function parseJwt(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
     </script>
 </body>
 </html>
