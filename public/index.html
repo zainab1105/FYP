@@ -19,7 +19,7 @@
         .container {
             background: white;
             padding: 65px;
-            border: 2px solid darkblue;
+            border: 1px solid rgba(0, 0, 139, 0.704);
             border-radius: 5px;
             box-shadow: 0 2px 10px rgba(11, 9, 100, 0.1);
             text-align: center;
@@ -80,9 +80,13 @@
 <body>
     <div class="container">
         <h1>Sign In</h1>
-        <input type="text" placeholder="Username" id="username">
-        <input type="password" placeholder="Password" id="password">
-        <button id="sign-in-btn" onclick="signIn()">Sign In</button>
+        <!-- Updated form with method POST and action to login.php -->
+        <form method="POST" action="login.php">
+            <input type="text" placeholder="Username" id="username" name="username">
+            <input type="password" placeholder="Password" id="password" name="password">
+            <button id="sign-in-btn">Sign In</button>
+        </form>
+        
         <div id="response-message"></div>
 
         <a href="rm-acc.html"><button id="delete">Want to delete your account?</button></a>
@@ -109,24 +113,6 @@
     </div>
 
     <script>
-        // Simulated manual sign-in
-        async function signIn() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            if (!username || !password) {
-                document.getElementById('response-message').innerText = "Please enter username and password.";
-                return;
-            }
-
-            document.getElementById('response-message').innerText = "Signing in...";
-
-            // Simulated successful sign-in
-            setTimeout(() => {
-                window.location.href = "alert.html"; // Redirect to alert page
-            }, 1000);
-        }
-
         // Google Sign-In Callback
         function handleCredentialResponse(response) {
             console.log("Encoded JWT ID token: " + response.credential);
