@@ -3,142 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In - Women Safety</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <title>Women Safety - Email Alert</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Lobster&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <style>
+        /* No changes to existing styles */
+       @keyframes gradientAnimation {
+        0% {
+            background-position: top;
+        }
+        100% {
+            background-position: bottom;
+        }
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #b9dcff, #c6dff7); 
+            background: linear-gradient(to bottom,#6337b6, #4fcffe); /*Starting gradient*/
+            background-size: 100% 200%; /* Size adjusted for smooth animation */
+            animation: gradientAnimation 5s ease infinite alternate; /* Animation applied here */
+            height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
         }
         .container {
-            background: white;
-            padding: 65px;
-            border: 1px solid rgba(0, 0, 139, 0.704);
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(11, 9, 100, 0.1);
+            background: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            border: 1px solid darkblue;
+            width: 512px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
+            margin-top: 10px;
+        }
+        h2 {
+            font-size: 24px;
+            color: #5a4292;
+            margin-bottom: 20px;
+        }
+        .email-container {
+            display: flex;
+            align-items: center;
         }
         input {
-            width: 92%;
-            padding: 17px;
+            width: 100%;
+            padding: 10px;
             margin: 10px 0;
             border-radius: 5px;
             border: 1px solid #ccc;
-            font-size: 15px;
+            font-size: 16px;
+        }
+        .edit-icon {
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .dropdown{
+            background-color: rgb(29, 136, 101) !important; 
+            border-radius: 6px !important;
+        }
+        .dropdown:hover{
+            background-color: rgb(7, 88, 61) !important;
+        }
+        .btn-secondary{
+            --bs-btn-bg: rgb(29,136, 101) !important; 
+            --bs-btn-hover-bg: rgb(7, 88, 61) !important; 
+            --bs-btn-hover-border-color: rgb(7, 88, 61) !important;
+            --bs-btn-border-color: rgb(29, 136, 101) !important; 
+        }
+        .btn{
+            --bs-btn-padding-y: -0.625rem !important;
+            --bs-btn-padding-x: 20px !important;
+        }
+        .btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active{
+            background-color: rgb(7, 88, 61) !important;
+            border-color: rgb(7, 88, 61) !important;
+        }
+        .dropdown-menu{
+            --bs-dropdown-min-width: 27rem !important;
+        }
+        .btn btn-secondary dropdown-toggle{
+            --bs-btn-padding-x: 30px !important;
         }
         button {
             width: 100%;
-            padding: 10px;
-            border: none;
+            padding: 8px;
+            margin: 10px 0;
             border-radius: 5px;
+            border: 1px solid #ccc;
             background-color: #28a745;
-            color: white;
+            color: #333;
+            border: none;
             cursor: pointer;
-            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #218838; 
         }
         #response-message {
-            margin-top: 10px;
-            color: #555;
+            margin-top: 15px;
+            font-size: 16px;
+            color: #333;
         }
-        #delete{
-            background-color: darkblue;
+        #name{
+            font-family: "Arima", system-ui;
+            font-weight: 600;
+        }
+        #map {
+            margin-top: 15px;
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        footer {
+            margin-top: 35px;
+            font-size: 14px;
+            color: #d6d6d6;
+            position: relative;
+            bottom: 20px;
+            text-align: center;
+            width: 100%;
+        }
+        .success-message {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #4CAF50;
+            font-weight: bold;
+            border: 1px solid #4CAF50;
+            background-color: #e7f9e7;
             padding: 10px;
-            font-size: 15px;
+            border-radius: 5px;
         }
-        #delete:hover{
-            background-color: white !important;
-            color: darkblue !important;
-            border: 2px solid darkblue !important;
-            padding: 8.4px !important;
+        .error-message {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #e74c3c;
+            font-weight: bold;
+            border: 1px solid #e74c3c;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
         }
-        #sign-in-btn{
-            color: darkblue;
-            border: 2px solid darkblue;
-            background-color: white;
-            font-size: 15px;
-        }
-        #sign-in-btn:hover{
-            background-color: darkblue;
-            color: aliceblue;
-        }
-        h3{
-            position: absolute;
-            top: 468px;
-            left: 48%;
-            border: 2px solid white;
-            background-color: white;
-            padding: 15px;
-        }
+        @media (max-width: 768px) {
+    /* Default styling for larger screens */
+body {
+    padding: 2vw; /* Use relative units for padding */
+}
+
+.container {
+    width: 90%;
+    padding: 5vw;
+}
+
+input, button {
+    font-size: 2rem; /* Use rem for font size */
+    padding: 1rem;
+}
+
+#map {
+    height: 30vh; /* Use viewport height to make the map responsive */
+}
+
+h2 {
+    font-size: 2.75rem; /* Use rem for font size */
+}
+
+/* For devices with screen width up to 768px */
+@media (max-width: 768px) {
+    body {
+        padding: 2.5vw;
+    }
+
+    .container {
+        width: 95%;
+        padding: 4.5vw;
+    }
+
+    input, button {
+        font-size: 2rem;
+        padding: 1rem;
+    }
+
+    #map {
+        height: 25vh;
+    }
+
+    h2 {
+        font-size: 2.75rem;
+    }
+}
+
+/* For devices with screen width up to 480px */
+@media (max-width: 480px) {
+    body {
+        padding: 3vw;
+    }
+
+    .container {
+        width: 100%;
+        padding: 5vw;
+    }
+
+    input, button {
+        font-size: 2rem;
+        padding: 1rem;
+    }
+
+    #map {
+        height: 20vh;
+    }
+
+    h2 {
+        font-size: 2.5rem;
+    }
+
+    footer {
+        font-size: 2rem;
+    }
+    .btn btn-secondary dropdown-toggle{
+        font-size: 2rem;
+    }
+}
+
     </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body>
+<body onload="Welcome()">
     <div class="container">
-        <h1>Sign In</h1>
-        <!-- Updated form with method POST and action to login.php -->
-        <form method="POST" action="login.php">
-            <input type="text" placeholder="Username" id="username" name="username">
-            <input type="password" placeholder="Password" id="password" name="password">
-            <button id="sign-in-btn">Sign In</button>
-        </form>
-        
+        <audio id="audio" src="welcome_vn.mp3" preload="auto" autoplay muted></audio>
+        <h2>Women Safety - Email Alert</h2>
+        <div class="email-container">
+            <input id="recipient-email" type="email">
+            <!-- <i class="fas fa-pencil-alt edit-icon" onclick="enableEditing()"></i> -->
+        </div>
+        <!-- Save Emails Button -->
+        <button id="save-email-btn" onclick="saveEmail()">Save Email</button>
+        <!-- Dropdown for saved emails -->
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Check saved emails    
+            </button>
+            <ul id="email-list" class="dropdown-menu">
+              <!-- Saved emails will appear here -->
+            </ul>
+          </div>
+        <button id="send-alert-btn" onclick="sendAlert()">Send Email Alert</button>
+
         <div id="response-message"></div>
-
-        <a href="rm-acc.html"><button id="delete">Want to delete your account?</button></a>
-
-        <hr style="margin: 30px 0;">
-        <h3>or</h3>
-
-        <!-- Google Sign-In -->
-        <div id="g_id_onload"
-            data-client_id="998791790071-fokl9jqimkm72imood2og6rvcbuqt5cr.apps.googleusercontent.com" 
-            data-context="signin"
-            data-ux_mode="popup"
-            data-callback="handleCredentialResponse"
-            data-auto_prompt="false">
-        </div>
-        <div class="g_id_signin"
-            data-type="standard"
-            data-shape="rectangular"
-            data-theme="outline"
-            data-text="signin_with"
-            data-size="large"
-            data-logo_alignment="left">
-        </div>
+        <div id="map"></div>
     </div>
-
-    <script>
-        // Google Sign-In Callback
-        function handleCredentialResponse(response) {
-            console.log("Encoded JWT ID token: " + response.credential);
-
-            // Decode the JWT token
-            const userInfo = parseJwt(response.credential);
-            console.log("User Info:", userInfo);
-
-            // Show a welcome message
-            document.getElementById('response-message').innerText = `Welcome, ${userInfo.name || "User"}!`;
-
-            // Optional: Redirect or process further
-            setTimeout(() => {
-                window.location.href = "alert.html"; // Redirect to alert page
-            }, 1000);
-        }
-
-        // Helper function to decode JWT
-        function parseJwt(token) {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            return JSON.parse(jsonPayload);
-        }
-    </script>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
 </body>
 </html>
