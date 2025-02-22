@@ -19,7 +19,7 @@ recognition.addEventListener('result', (event) => {
     const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim(); // Get the transcript in lowercase
     console.log("Recognized:", transcript);
 
-    if (transcript.includes("send alert")) {
+    if (transcript.includes("help me")) {
         sendAlert(); // Call sendAlert when "send alert" is detected
     }
 });
@@ -52,6 +52,9 @@ function saveEmail() {
 
     if (emailValue !== "" && !savedEmails.includes(emailValue)) {
         savedEmails.push(emailValue);
+        localStorage.setItem("savedEmails", JSON.stringify(savedEmails)); // Save in localStorage
+
+
         
         const listItem = document.createElement('li');
         listItem.classList.add('dropdown-item');
@@ -71,12 +74,40 @@ function saveEmail() {
         listItem.appendChild(removeIcon);
         emailList.appendChild(listItem);
 
+        updateEmailSuggestions(); // Refresh the suggestions
         emailInput.value = ""; // Clear input after saving
         alert("Email saved!");
     } else {
         alert("Email is either empty or already saved.");
     }
 }
+
+function loadSavedEmails() {
+    savedEmails = JSON.parse(localStorage.getItem("savedEmails")) || []; // Retrieve saved emails
+    const emailList = document.getElementById('email-list');
+
+    savedEmails.forEach(email => {
+        const listItem = document.createElement('li');
+        listItem.classList.add('dropdown-item');
+
+        const emailText = document.createElement('span');
+        emailText.innerText = email;
+
+        const removeIcon = document.createElement('i');
+        removeIcon.classList.add('fas', 'fa-times');
+        removeIcon.style.cursor = 'pointer';
+        removeIcon.style.marginLeft = '150px';
+        removeIcon.onclick = () => removeEmail(email, listItem);
+
+        listItem.appendChild(emailText);
+        listItem.appendChild(removeIcon);
+        emailList.appendChild(listItem);
+    });
+}
+
+// Call this function when the page loads
+document.addEventListener('DOMContentLoaded', loadSavedEmails);
+
 
 // Function to remove email from saved list
 function removeEmail(email, listItem) {
@@ -172,6 +203,7 @@ document.addEventListener('click', () => {
         audio.play();
     }
 });
+
 
 
 // // Initialize the map and Google Sign-In when the page loads
