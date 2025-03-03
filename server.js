@@ -25,12 +25,12 @@ const transporter = nodemailer.createTransport({
     debug: true,   // Detailed logs for debugging
 });
 
-    // Middleware
+// Middleware
     app.use(cors()); // Use cors middleware
     app.use(bodyParser.json()); // Parse incoming request bodies as JSON
 
-    // Endpoint to handle email sending
-    app.post('/send-alert', async (req, res) => {
+// Endpoint to handle email sending
+app.post('/send-alert', async (req, res) => {
     const { email, location } = req.body;
 
     if (!email || !location) { // Validate input

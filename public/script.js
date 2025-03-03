@@ -27,6 +27,11 @@ recognition.addEventListener('result', (event) => {
 // Handle errors in speech recognition
 recognition.addEventListener('error', (event) => {
     console.error('Speech recognition error:', event.error);
+    
+    if (event.error === 'no-speech' || event.error === 'audio-capture') {
+        console.warn("No speech detected, restarting recognition...");
+        recognition.start(); // Restart speech recognition
+    }
 });
 
 // Function to get the user's location
@@ -52,9 +57,6 @@ function saveEmail() {
 
     if (emailValue !== "" && !savedEmails.includes(emailValue)) {
         savedEmails.push(emailValue);
-        localStorage.setItem("savedEmails", JSON.stringify(savedEmails)); // Save in localStorage
-
-
         
         const listItem = document.createElement('li');
         listItem.classList.add('dropdown-item');
@@ -74,40 +76,12 @@ function saveEmail() {
         listItem.appendChild(removeIcon);
         emailList.appendChild(listItem);
 
-        updateEmailSuggestions(); // Refresh the suggestions
         emailInput.value = ""; // Clear input after saving
         alert("Email saved!");
     } else {
         alert("Email is either empty or already saved.");
     }
 }
-
-function loadSavedEmails() {
-    savedEmails = JSON.parse(localStorage.getItem("savedEmails")) || []; // Retrieve saved emails
-    const emailList = document.getElementById('email-list');
-
-    savedEmails.forEach(email => {
-        const listItem = document.createElement('li');
-        listItem.classList.add('dropdown-item');
-
-        const emailText = document.createElement('span');
-        emailText.innerText = email;
-
-        const removeIcon = document.createElement('i');
-        removeIcon.classList.add('fas', 'fa-times');
-        removeIcon.style.cursor = 'pointer';
-        removeIcon.style.marginLeft = '150px';
-        removeIcon.onclick = () => removeEmail(email, listItem);
-
-        listItem.appendChild(emailText);
-        listItem.appendChild(removeIcon);
-        emailList.appendChild(listItem);
-    });
-}
-
-// Call this function when the page loads
-document.addEventListener('DOMContentLoaded', loadSavedEmails);
-
 
 // Function to remove email from saved list
 function removeEmail(email, listItem) {
@@ -188,23 +162,6 @@ function initMap() {
 
 window.onload = initMap;  // Ensure this function runs when the page loads
 
-function Welcome() {
-    const audio = document.getElementById('audio');
-    audio.muted = false; // Unmute the audio
-    audio.play().catch(error => {
-        console.error("Autoplay issue:", error);
-        alert("Click anywhere to enable audio playback.");
-    });
-}
-
-document.addEventListener('click', () => {
-    const audio = document.getElementById('audio');
-    if (audio.paused) {
-        audio.play();
-    }
-});
-
-
 
 // // Initialize the map and Google Sign-In when the page loads
 // window.onload = function() {
@@ -218,3 +175,4 @@ document.addEventListener('click', () => {
 //         });
 //     });
 // };
+
